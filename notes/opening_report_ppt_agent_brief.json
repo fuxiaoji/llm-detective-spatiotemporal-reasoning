@@ -1,0 +1,152 @@
+{
+  "deck_title_cn": "基于时空证据记忆的大语言模型侦探推理能力提升研究",
+  "deck_title_en": "Improving LLM Detective Reasoning with Spatio-Temporal Evidence Memory",
+  "slide_count": 7,
+  "language": "Chinese with key English terms",
+  "style": {
+    "tone": "academic, clear, concise",
+    "colors": ["dark blue", "gray white", "orange accent"],
+    "visuals": ["flowchart", "comparison table", "radial diagram", "timeline"]
+  },
+  "one_sentence_positioning": "本项目研究在侦探叙事推理任务中，如何结合 Chain-of-Thought / Test-Time Improvement、时空信息建模、图结构证据记忆和复杂叙事理解，让大语言模型更可靠地追踪人物、时间、地点、物品和证词矛盾，并在有限 thinking budget 下做出更准确的推理。",
+  "motivation_evidence": [
+    "MuSR: GPT-4 + CoT+ reaches 80.4 on Murder Mystery vs 94.1 human evaluation; on Object Placements, GPT-4 reaches 60.9 vs 95.0 human evaluation.",
+    "DetectBench: the paper reports GPT4-Turbo average evidence detection RougeL-F of 44.4; on Test-Hard, GPT4 Naive has evidence detection 31.4 and correct answering 29.6.",
+    "DetectiveQA: average context length is about 118k tokens and answers involve 8.48 reference reasoning steps on average; GPT-4-1106 reaches 73.99 answer accuracy but only 27.43 step-wise reasoning score."
+  ],
+  "research_questions": [
+    "大语言模型在侦探推理中主要错在哪里？",
+    "结构化的时空证据记忆是否能提升模型推理准确率？",
+    "不同 test-time reasoning 策略在准确率和推理成本之间有什么差异？",
+    "模型什么时候应该继续思考，什么时候应该停止？"
+  ],
+  "slides": [
+    {
+      "page": 1,
+      "title": "题目与研究动机",
+      "bullets": [
+        "LLM 已经能进行一定文本推理，但在复杂侦探叙事中仍容易出错。",
+        "侦探推理需要持续追踪人物关系、时间线、地点移动、物品状态和证词矛盾。",
+        "本项目研究如何让 LLM 更可靠地组织证据、推理案件、控制思考成本。"
+      ],
+      "speaker_note": "侦探故事更接近动态系统。人物会移动，证据会出现或消失，证词可能互相矛盾。普通 CoT 容易在长文本和复杂线索中遗忘或混淆信息。",
+      "visual": "Detective Story -> LLM Reasoning -> Suspect / Evidence / Explanation, with error labels: timeline error, location confusion, missed contradiction, wrong evidence."
+    },
+    {
+      "page": 2,
+      "title": "跨领域视角：LLM 推理 × 侦探叙事 × 时空记忆 × 图结构",
+      "bullets": [
+        "LLM 推理：CoT、Tree of Thoughts、Reflection、Self-Consistency。",
+        "Test-Time Improvement：在推理阶段动态增加思考、采样、验证。",
+        "侦探叙事推理：嫌疑人、动机、作案机会、证词矛盾。",
+        "时空信息理解：谁在什么时间、什么地点、做了什么。",
+        "图结构记忆：把线索转化为人物-时间-地点-物品-事件图。"
+      ],
+      "speaker_note": "这个选题不是单一 NLP 任务，而是把语言模型推理、侦探故事结构、cognitive map 和 evidence graph 结合起来。",
+      "visual": "Radial diagram centered on LLM Detective Reasoning, surrounded by CoT/Test-Time Scaling, Detective Narrative, Spatio-Temporal Memory, Evidence Graph."
+    },
+    {
+      "page": 3,
+      "title": "相关研究：已有基础与尚未解决的问题",
+      "bullets": [
+        "CoT/Test-Time：Tree of Thoughts、s1、Adaptive Generate-Rank-Verify 说明测试时推理策略很重要。",
+        "侦探推理数据集：MuSR、DetectBench、DetectiveQA 关注多步推理、隐含证据和长上下文。",
+        "时空记忆：Tag Map、Cog-GA 等工作说明结构化地图和记忆能帮助空间推理。",
+        "不足：这些方向还没有很好结合，尤其缺少面向侦探叙事的时空证据记忆方法。"
+      ],
+      "speaker_note": "已有研究分别证明了多步推理、侦探推理和结构化空间记忆的重要性。我们的切入点是把它们结合，用于分析和提升侦探推理。",
+      "visual": "Three-column table: CoT/Test-Time, Detective QA, Spatial Memory; include representative papers and limitations."
+    },
+    {
+      "page": 4,
+      "title": "核心假设：结构化证据记忆可以减少无效推理",
+      "bullets": [
+        "假设：将人物、时间、地点、物品、事件和证词矛盾结构化保存，能提升 LLM 推理稳定性。",
+        "方法：先抽取事件和线索，再构建 Spatio-Temporal Evidence Graph。",
+        "推理：LLM 在回答问题前查询证据图，输出答案、关键证据和解释。"
+      ],
+      "speaker_note": "我们不是让模型无限制生成更长 CoT，而是给它一个外部结构化记忆。这样既可能提升准确率，也方便分析模型到底错在哪里。",
+      "visual": "Flowchart: Story Text -> Event Extraction -> Evidence Graph -> LLM Reasoning -> Answer + Evidence."
+    },
+    {
+      "page": 5,
+      "title": "实验设计：比较不同 Test-Time Reasoning 策略",
+      "bullets": [
+        "对比方法：Direct Answer、Standard CoT、CoT + Reflection、Self-Consistency、RAG、Ours。",
+        "关键变量：thinking budget、是否使用 evidence graph、任务难度。",
+        "目标：比较准确率，也比较 token 成本和推理效率。"
+      ],
+      "speaker_note": "实验不只是比较谁准确率高，也要比较同样成本下谁更有效。结构化证据记忆如果能减少无效思考，就有研究价值。",
+      "visual": "Comparison matrix with columns: method, multi-step reasoning, multi-sampling, explicit evidence memory, cost."
+    },
+    {
+      "page": 6,
+      "title": "数据与评估：从最终答案到细粒度推理能力",
+      "bullets": [
+        "MuSR murder mystery：250 条 murder mystery 样本。",
+        "DetectBench 英文版：train/dev/test/test-hard/test-distract 共约 3926 条 JSONL 记录。",
+        "DetectiveQA：长篇侦探小说问答，可用于小规模定性分析。",
+        "TurnaboutLLM：侦探游戏风格的证据和证词矛盾数据。",
+        "评估：最终答案、关键证据、时间线、地点追踪、物品状态、矛盾识别、cost-accuracy tradeoff。"
+      ],
+      "speaker_note": "公开数据集可用于 baseline，但主实验可以补充可控 synthetic detective cases，因为它们能提供完整的时空状态 gold label。",
+      "visual": "Dataset table: MuSR, DetectBench, DetectiveQA, TurnaboutLLM, Synthetic Cases; columns: usage and advantage."
+    },
+    {
+      "page": 7,
+      "title": "预期贡献与可行性",
+      "bullets": [
+        "贡献 1：总结 LLM 在侦探推理中的典型错误类型。",
+        "贡献 2：设计 Spatio-Temporal Evidence Memory / Graph 方法。",
+        "贡献 3：比较不同 test-time reasoning 策略的准确率和成本。",
+        "贡献 4：探索 thinking budget 的分配：什么时候继续推理，什么时候停止。",
+        "可行性：不训练大模型，主要使用 LLM API 和 Python 图结构处理。"
+      ],
+      "speaker_note": "这个项目可以从轻量实验做起，不依赖个人显卡训练大模型。创新点在于推理阶段如何组织证据、调用记忆、分配思考成本。",
+      "visual": "Timeline: Paper Review -> Baselines -> Evidence Graph -> Experiments -> Report."
+    }
+  ],
+  "local_data": {
+    "MuSR": {
+      "path": "data/MuSR/datasets/murder_mystery.json",
+      "count": 250,
+      "usage": "murder mystery baseline"
+    },
+    "DetectBench": {
+      "path": "data/DetectBench/DetectBench_eng_v1.3/*.jsonl",
+      "count_approx": 3926,
+      "usage": "implicit evidence discovery and multi-hop reasoning"
+    },
+    "DetectiveQA": {
+      "path": "data/DetectiveQA/",
+      "usage": "long-context qualitative analysis"
+    },
+    "TurnaboutLLM": {
+      "path": "data/TurnaboutLLM/data/",
+      "files": ["AA_integrated_dataset.json", "DR_integrate_dataset.json"],
+      "usage": "evidence-testimony contradiction data"
+    },
+    "LLM Mysteries": {
+      "path": "data/llm-mysteries/",
+      "usage": "reference implementation for mystery solving and belief graph ideas"
+    }
+  },
+  "references": {
+    "cot_test_time": [
+      "papers/2305.10601_Tree_of_Thoughts.pdf",
+      "papers/2025.emnlp-main.1025_s1_Simple_Test_Time_Scaling.pdf",
+      "papers/2605.17609_Adaptive_Generate_Rank_Verify.pdf"
+    ],
+    "detective_reasoning": [
+      "papers/2310.16049_MuSR_Multistep_Soft_Reasoning.pdf",
+      "papers/2406.12641_DetectBench.pdf",
+      "papers/2409.02465_DetectiveQA.pdf"
+    ],
+    "spatial_memory": [
+      "papers/2409.15451_Tag_Map_Text_Based_Map_for_LLMs.pdf",
+      "papers/2409.02522_Cog_GA_Cognitive_Map_Generative_Agent.pdf",
+      "papers/2508.16654_MSNav_Dynamic_Memory_Spatial_Reasoning.pdf",
+      "papers/2510.04195_Coherent_Spatial_Memory_Graph_Rectification.pdf"
+    ]
+  }
+}

@@ -1,0 +1,82 @@
+请根据以下项目材料生成一份 6-7 页中文开题报告 PPT。
+
+项目题目：
+基于时空证据记忆的大语言模型侦探推理能力提升研究
+
+英文题目：
+Improving LLM Detective Reasoning with Spatio-Temporal Evidence Memory
+
+研究定位：
+本项目研究在侦探叙事推理任务中，如何结合 Chain-of-Thought / Test-Time Improvement、时空信息建模、图结构证据记忆和复杂叙事理解，让大语言模型更可靠地追踪人物、时间、地点、物品和证词矛盾，并在有限 thinking budget 下做出更准确的推理。
+
+研究动机需要使用具体数据，不要只写空泛判断：
+- MuSR murder mystery：GPT-4 + CoT+ 在 Murder Mystery 上为 80.4%，人类为 94.1%；Object Placements 上 GPT-4 为 60.9%，人类为 95.0%。
+- DetectBench：GPT4-Turbo 平均 evidence detection RougeL-F 只有 44.4；Test-Hard 中 GPT4 Naive 的 evidence detection 为 31.4，correct answering 为 29.6。
+- DetectiveQA：平均上下文约 118k tokens，答案平均涉及 8.48 个 reference reasoning steps；GPT-4-1106 的 answer accuracy 为 73.99，但 step-wise reasoning score 只有 27.43。
+
+请突出跨领域结合：
+1. 大语言模型推理：CoT、Tree of Thoughts、Reflection、Self-Consistency。
+2. Test-Time Improvement：测试时增加推理、采样、验证，并研究 thinking budget。
+3. 侦探叙事推理：嫌疑人、动机、作案机会、证词矛盾、隐含证据。
+4. 时空信息理解：人物在不同时间和地点的移动，物品状态变化。
+5. 图结构证据记忆：构建人物-时间-地点-物品-事件-证词矛盾的 Evidence Graph。
+
+PPT 页面结构：
+
+第 1 页：题目与研究动机
+- LLM 在普通问答中表现强，但在复杂侦探叙事中容易出错。
+- 侦探推理需要追踪人物、时间、地点、物品和证词矛盾。
+- 研究问题：如何让 LLM 更可靠地组织证据、推理案件、控制思考成本？
+
+第 2 页：跨领域结合
+- LLM Reasoning
+- CoT / Test-Time Scaling
+- Detective Narrative
+- Spatio-Temporal Memory
+- Evidence Graph
+- 建议用中心辐射图，中心是 LLM Detective Reasoning。
+
+第 3 页：相关研究与不足
+- CoT/Test-Time：Tree of Thoughts、s1、Adaptive Generate-Rank-Verify。
+- 侦探推理数据集：MuSR、DetectBench、DetectiveQA。
+- 空间记忆：Tag Map、Cog-GA、MSNav、Spatial Memory Graph。
+- 不足：已有方向分散，缺少面向侦探叙事的时空证据记忆方法。
+
+第 4 页：方法框架
+- 假设：结构化保存人物、时间、地点、物品、事件和证词矛盾，可以提升 LLM 推理稳定性。
+- 流程图：
+  Story Text -> Event Extraction -> Spatio-Temporal Evidence Graph -> LLM Reasoning -> Answer + Evidence
+- Evidence Graph 节点示例：Person、Time、Location、Object、Event、Testimony、Conflict。
+
+第 5 页：实验设计
+- 对比方法：
+  Direct Answer、Standard CoT、CoT + Reflection、Self-Consistency、RAG、Ours。
+- 变量：
+  thinking budget、是否使用 evidence graph、任务难度。
+- 目标：
+  比较准确率，也比较 token 成本和推理效率。
+
+第 6 页：数据与评估
+- 本地已有数据：
+  MuSR murder mystery：250 条 murder mystery 样本。
+  DetectBench 英文版：train/dev/test/test-hard/test-distract 共约 3926 条 JSONL 记录。
+  DetectiveQA：长篇侦探小说问答，可用于小规模定性分析。
+  TurnaboutLLM：侦探游戏风格的证据和证词矛盾数据。
+  LLM Mysteries：可参考 belief graph / mystery-solving 思路。
+- 评估指标：
+  Final Answer Accuracy、Evidence Recall、Timeline Accuracy、Location Tracking Accuracy、Object State Accuracy、Contradiction Detection、Cost-Accuracy Tradeoff。
+
+第 7 页：预期贡献与可行性
+- 总结 LLM 在侦探推理中的典型错误。
+- 设计 Spatio-Temporal Evidence Memory / Graph 方法。
+- 比较不同 test-time reasoning 策略的准确率和成本。
+- 探索 thinking budget：什么时候继续推理，什么时候停止。
+- 可行性：不训练大模型，主要使用 LLM API 和 Python 图结构处理，个人算力可以完成。
+
+视觉风格：
+- 中文为主，保留必要英文术语。
+- 学术、简洁、不要堆字。
+- 主色使用深蓝、灰白、橙色强调。
+- 多用流程图、对比表、中心辐射图、时间线。
+
+请输出一份完整 PPT 文件，内容不要太空泛，要体现这是一个跨领域研究选题。
