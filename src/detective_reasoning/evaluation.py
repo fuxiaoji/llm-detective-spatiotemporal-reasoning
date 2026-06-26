@@ -20,13 +20,20 @@ def parse_prediction(text: str, sample: Sample) -> tuple[Any, str | None]:
             return matches[-1], None
         return None, "Could not parse option letter"
     if sample.dataset == "turnabout":
-        match = re.search(r"\[[^\]]+\]", lowered)
-        if match:
+        matches = re.findall(r"\[[^\]]+\]", lowered)
+        for candidate in reversed(matches):
             try:
-                return ast.literal_eval(match.group(0)), None
+                parsed = ast.literal_eval(candidate)
+                if (
+                    isinstance(parsed, list)
+                    and len(parsed) == 2
+                    and all(isinstance(x, int) for x in parsed)
+                ):
+                    return parsed, None
             except Exception as e:
-                return None, f"Could not parse pair: {e}"
-        return None, "Could not parse evidence-testimony pair"
+                last_error = str(e)
+                continue
+        return None, "Could not parse valid evidence-testimony pair"
     matches = re.findall(r"(?<![\w.-])(\d+)(?![\w.-])", lowered)
     if matches:
         return int(matches[-1]), None
@@ -98,4 +105,3 @@ def write_summary_csv(path: Path, predictions: list[Prediction]) -> None:
         writer = csv.DictWriter(f, fieldnames=list(row.keys()))
         writer.writeheader()
         writer.writerow(row)
-

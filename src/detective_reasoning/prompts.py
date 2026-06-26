@@ -13,15 +13,20 @@ def format_options(options) -> str:
 
 def answer_format_hint(sample: Sample) -> str:
     if sample.dataset == "detectiveqa":
-        return "Return the final answer as one option letter, such as A, B, C, or D."
+        return "At the very end, write exactly: Final answer: <one option letter, such as A, B, C, or D>."
     if sample.dataset == "turnabout":
-        return "Return the final answer as [evidence_index, testimony_index]."
-    return "Return the final answer as one option index, such as 0, 1, 2, or 3."
+        return "At the very end, write exactly: Final answer: [evidence_index, testimony_index]."
+    return "At the very end, write exactly: Final answer: <one option index, such as 0, 1, 2, or 3>."
 
 
 def base_prompt(sample: Sample, instruction: str) -> str:
     context = sample.context or "(No full context is available for this sample.)"
     evidence = "" if sample.evidence is None else f"\nKnown evidence annotations:\n{sample.evidence}\n"
+    testimonies = ""
+    if sample.dataset == "turnabout":
+        raw_testimonies = sample.metadata.get("testimonies")
+        if raw_testimonies:
+            testimonies = f"\nTestimonies:\n{raw_testimonies}\n"
     return f"""You are solving a detective reasoning benchmark.
 
 {instruction}
@@ -35,6 +40,7 @@ Question:
 Options:
 {format_options(sample.options)}
 {evidence}
+{testimonies}
 {answer_format_hint(sample)}
 """
 
@@ -84,4 +90,3 @@ def build_prompt(method: str, sample: Sample, draft: str | None = None) -> str:
     if method == "critic_checklist":
         return critic_checklist_prompt(sample, draft=draft)
     raise ValueError(f"Unknown method: {method}")
-
