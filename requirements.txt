@@ -1,0 +1,6 @@
+# The current toolkit works with Python standard library only.
+# Optional future UI/API dependencies:
+# streamlit
+# openai
+# pandas
+
