@@ -23,6 +23,7 @@ MODEL_PRESETS = [
         "base_url": "https://api.deepseek.com",
         "thinking": "disabled",
         "reasoning_effort": "",
+        "max_tokens": "1200",
     },
     {
         "id": "deepseek-v4-flash-thinking",
@@ -31,7 +32,8 @@ MODEL_PRESETS = [
         "model": "deepseek-v4-flash",
         "base_url": "https://api.deepseek.com",
         "thinking": "enabled",
-        "reasoning_effort": "medium",
+        "reasoning_effort": "high",
+        "max_tokens": "4096",
     },
     {
         "id": "deepseek-v4-pro",
@@ -41,6 +43,7 @@ MODEL_PRESETS = [
         "base_url": "https://api.deepseek.com",
         "thinking": "disabled",
         "reasoning_effort": "",
+        "max_tokens": "1200",
     },
     {
         "id": "deepseek-v4-pro-thinking",
@@ -49,7 +52,8 @@ MODEL_PRESETS = [
         "model": "deepseek-v4-pro",
         "base_url": "https://api.deepseek.com",
         "thinking": "enabled",
-        "reasoning_effort": "medium",
+        "reasoning_effort": "high",
+        "max_tokens": "4096",
     },
     {
         "id": "gpt-4o-mini",
@@ -59,6 +63,7 @@ MODEL_PRESETS = [
         "base_url": "https://api.openai.com/v1",
         "thinking": "",
         "reasoning_effort": "",
+        "max_tokens": "1200",
     },
     {
         "id": "gpt-4.1-mini",
@@ -68,6 +73,7 @@ MODEL_PRESETS = [
         "base_url": "https://api.openai.com/v1",
         "thinking": "",
         "reasoning_effort": "",
+        "max_tokens": "1200",
     },
     {
         "id": "qwen-plus",
@@ -77,6 +83,7 @@ MODEL_PRESETS = [
         "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "thinking": "",
         "reasoning_effort": "",
+        "max_tokens": "1200",
     },
     {
         "id": "moonshot-v1-8k",
@@ -86,6 +93,7 @@ MODEL_PRESETS = [
         "base_url": "https://api.moonshot.cn/v1",
         "thinking": "",
         "reasoning_effort": "",
+        "max_tokens": "1200",
     },
     {
         "id": "mock",
@@ -95,6 +103,7 @@ MODEL_PRESETS = [
         "base_url": "",
         "thinking": "",
         "reasoning_effort": "",
+        "max_tokens": "800",
     },
     {
         "id": "deepseek-chat-legacy",
@@ -104,6 +113,7 @@ MODEL_PRESETS = [
         "base_url": "https://api.deepseek.com",
         "thinking": "",
         "reasoning_effort": "",
+        "max_tokens": "1200",
     },
     {
         "id": "deepseek-reasoner-legacy",
@@ -113,6 +123,7 @@ MODEL_PRESETS = [
         "base_url": "https://api.deepseek.com",
         "thinking": "",
         "reasoning_effort": "",
+        "max_tokens": "4096",
     },
 ]
 
@@ -146,6 +157,7 @@ def _page(body: str) -> bytes:
       document.getElementById("base-url-input").value = preset.base_url;
       document.getElementById("thinking-input").value = preset.thinking || "";
       document.getElementById("reasoning-effort-input").value = preset.reasoning_effort || "";
+      document.getElementById("max-tokens-input").value = preset.max_tokens || "1200";
     }}
   </script>
 </head>
@@ -211,15 +223,29 @@ class DemoHandler(BaseHTTPRequestHandler):
                 )
                 pred = artifacts.predictions[0]
                 correct_class = "ok" if pred.correct else "bad"
+                reasoning_content = pred.intermediate.get("reasoning_content")
+                empty_answer_warning = (
+                    '<p class="bad"><b>No final answer content returned.</b> The model produced reasoning_content but no final content. Increase Max tokens, use a non-thinking preset, or ask for a shorter answer.</p>'
+                    if reasoning_content and not pred.raw_output
+                    else ""
+                )
+                reasoning_html = (
+                    f"<h3>DeepSeek Reasoning Content</h3><pre>{html.escape(reasoning_content)}</pre>"
+                    if reasoning_content
+                    else '<h3>DeepSeek Reasoning Content</h3><p class="muted">No reasoning_content was returned. For DeepSeek V4, choose a Thinking preset or set Thinking = enabled.</p>'
+                )
                 result_html = f"""
                 <div class="card">
                   <h2>Result</h2>
                   <p><b>Run ID:</b> {html.escape(artifacts.run_id)}</p>
                   <p><b>Saved to:</b> {html.escape(artifacts.run_dir)}</p>
+                  <p><b>Model config:</b> provider={html.escape(provider)}, model={html.escape(model)}, thinking={html.escape(thinking or 'provider default')}, reasoning_effort={html.escape(reasoning_effort or 'none')}</p>
+                  {empty_answer_warning}
                   <p><b>Prediction:</b> {html.escape(str(pred.prediction))}</p>
                   <p><b>Gold:</b> {html.escape(str(pred.gold))}</p>
                   <p><b>Correct:</b> <span class="{correct_class}">{pred.correct}</span></p>
                   <p><b>Parse error:</b> {html.escape(str(pred.parse_error))}</p>
+                  {reasoning_html}
                   <h3>Tool / Skill Trace</h3><pre>{html.escape(json.dumps(pred.intermediate, ensure_ascii=False, indent=2))}</pre>
                   <h3>Visible Model Output</h3><pre>{html.escape(pred.raw_output)}</pre>
                   <h3>Prompt</h3><pre>{html.escape(pred.prompt)}</pre>
@@ -291,12 +317,11 @@ class DemoHandler(BaseHTTPRequestHandler):
             <label>Reasoning effort
               <select id="reasoning-effort-input" name="reasoning_effort">
                 <option value="" {"selected" if reasoning_effort == "" else ""}>none</option>
-                <option value="low" {"selected" if reasoning_effort == "low" else ""}>low</option>
-                <option value="medium" {"selected" if reasoning_effort == "medium" else ""}>medium</option>
                 <option value="high" {"selected" if reasoning_effort == "high" else ""}>high</option>
+                <option value="max" {"selected" if reasoning_effort == "max" else ""}>max</option>
               </select>
             </label>
-            <label>Max tokens <input name="max_tokens" value="{max_tokens}" size="5"></label>
+            <label>Max tokens <input id="max-tokens-input" name="max_tokens" value="{max_tokens}" size="5"></label>
             <button name="run" value="0">Load sample</button>
             <button name="run" value="1">Run and save</button>
             <p class="muted">API key can be pasted here for a one-off run or supplied through OPENAI_API_KEY before starting the server. It is not saved to run files.</p>

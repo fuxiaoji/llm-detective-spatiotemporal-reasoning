@@ -83,6 +83,11 @@ def run_method(
     if resp.reasoning_content:
         intermediate["reasoning_content"] = resp.reasoning_content
     pred, parse_error = parse_prediction(resp.text, sample)
+    if resp.reasoning_content and not resp.text.strip():
+        parse_error = (
+            "Model returned reasoning_content but no final answer content. "
+            "Increase max_tokens, use a non-thinking preset, or ask for a shorter final answer."
+        )
     return Prediction(
         run_id=run_id,
         sample_id=sample.id,

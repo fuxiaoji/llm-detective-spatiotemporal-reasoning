@@ -210,6 +210,77 @@ def _structured_memory_stub(sample: Sample, prompt: str, intermediate: dict) -> 
     )
 
 
+def _musr_cot_plus(sample: Sample, prompt: str, intermediate: dict) -> str:
+    intermediate.setdefault("skills", []).append(
+        {
+            "name": "musr_cot_plus",
+            "source": "MuSR CoT+ style prompting",
+            "effect": "Forces explicit option-by-option multi-step soft reasoning before the final answer.",
+        }
+    )
+    return (
+        prompt
+        + "\n\nMuSR-style CoT+ skill:\n"
+        + "1. Identify every candidate option.\n"
+        + "2. For each option, list means, motive, opportunity, and story evidence.\n"
+        + "3. Separate explicit facts from plausible commonsense inferences.\n"
+        + "4. Compare candidates and choose the one best supported by the full story.\n"
+        + "Keep the final line in the required Final answer format.\n"
+    )
+
+
+def _detectbench_detective_prompt(sample: Sample, prompt: str, intermediate: dict) -> str:
+    intermediate.setdefault("skills", []).append(
+        {
+            "name": "detectbench_detective_prompt",
+            "source": "DetectBench detective reasoning prompt",
+            "effect": "Asks the model to detect implicit evidence, connect evidence hops, then answer.",
+        }
+    )
+    return (
+        prompt
+        + "\n\nDetectBench-style detective reasoning skill:\n"
+        + "First extract the hidden clues needed to solve the problem. Then connect the clues as a multi-hop chain. "
+        + "For each answer option, state which clue chain supports or rules it out. "
+        + "Do not answer until the evidence chain is explicit. End with the required Final answer format.\n"
+    )
+
+
+def _detectiveqa_stepwise_reasoning(sample: Sample, prompt: str, intermediate: dict) -> str:
+    intermediate.setdefault("skills", []).append(
+        {
+            "name": "detectiveqa_stepwise_reasoning",
+            "source": "DetectiveQA step-wise reasoning evaluation",
+            "effect": "Encourages answer reasoning as ordered evidence steps rather than a single conclusion.",
+        }
+    )
+    return (
+        prompt
+        + "\n\nDetectiveQA-style step-wise reasoning skill:\n"
+        + "Build a short ordered list of evidence steps that would justify the answer in a detective novel. "
+        + "Each step should connect a clue to an inference. Then map the final inference to one option. "
+        + "End with the required Final answer format.\n"
+    )
+
+
+def _turnabout_contradiction_matrix(sample: Sample, prompt: str, intermediate: dict) -> str:
+    intermediate.setdefault("skills", []).append(
+        {
+            "name": "turnabout_contradiction_matrix",
+            "source": "TurnaboutLLM contradiction-pair evaluation",
+            "effect": "Compares evidence and testimony by temporal, spatial, causal, and physical contradiction types.",
+        }
+    )
+    return (
+        prompt
+        + "\n\nTurnaboutLLM-style contradiction matrix skill:\n"
+        + "Search for a single evidence-testimony contradiction. Compare candidate pairs by:\n"
+        + " temporal conflict, spatial conflict, causal conflict, physical impossibility, and direct factual mismatch. "
+        + "Choose the strongest contradictory pair, not merely a supporting pair. "
+        + "End with exactly the required [evidence_index, testimony_index] Final answer format.\n"
+    )
+
+
 SKILLS: dict[str, SkillSpec] = {
     "dummy_skill": SkillSpec(
         "dummy_skill",
@@ -225,6 +296,26 @@ SKILLS: dict[str, SkillSpec] = {
         "structured_memory_stub",
         "Ask the model to build a temporary structured memory before answering.",
         _structured_memory_stub,
+    ),
+    "musr_cot_plus": SkillSpec(
+        "musr_cot_plus",
+        "MuSR-inspired CoT+ option-by-option soft reasoning.",
+        _musr_cot_plus,
+    ),
+    "detectbench_detective_prompt": SkillSpec(
+        "detectbench_detective_prompt",
+        "DetectBench-inspired implicit evidence detection and multi-hop reasoning.",
+        _detectbench_detective_prompt,
+    ),
+    "detectiveqa_stepwise_reasoning": SkillSpec(
+        "detectiveqa_stepwise_reasoning",
+        "DetectiveQA-inspired ordered evidence-step reasoning.",
+        _detectiveqa_stepwise_reasoning,
+    ),
+    "turnabout_contradiction_matrix": SkillSpec(
+        "turnabout_contradiction_matrix",
+        "TurnaboutLLM-inspired contradiction matrix over evidence and testimony.",
+        _turnabout_contradiction_matrix,
     ),
 }
 
