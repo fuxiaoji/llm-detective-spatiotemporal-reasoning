@@ -25,6 +25,7 @@ class Sample:
 class ModelResponse:
     text: str
     model: str
+    reasoning_content: str | None = None
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
     total_tokens: int | None = None
@@ -36,10 +37,13 @@ class ModelResponse:
 
 @dataclass
 class Prediction:
+    run_id: str
     sample_id: str
     dataset: str
     split: str
     method: str
+    skills: list[str]
+    provider: str
     model: str
     prompt: str
     raw_output: str
@@ -49,7 +53,7 @@ class Prediction:
     parse_error: str | None = None
     intermediate: dict[str, Any] = field(default_factory=dict)
     usage: dict[str, Any] = field(default_factory=dict)
+    created_at: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
-

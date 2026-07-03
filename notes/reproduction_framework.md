@@ -1,7 +1,8 @@
 # Reproduction Framework
 
-This project now includes a minimal, dependency-free framework for reproducing
-detective-reasoning baselines and inspecting model behavior.
+This project now includes a modular, dependency-free framework for reproducing
+detective-reasoning baselines, testing plug-in style skills, and saving
+auditable experiment traces.
 
 ## Entry Points
 
@@ -9,6 +10,13 @@ List supported datasets:
 
 ```bash
 python3 -m src.detective_reasoning.cli list-datasets
+```
+
+List supported methods and skills:
+
+```bash
+python3 -m src.detective_reasoning.cli list-methods
+python3 -m src.detective_reasoning.cli list-skills
 ```
 
 Peek at normalized samples:
@@ -25,6 +33,7 @@ python3 -m src.detective_reasoning.cli eval \
   --dataset musr \
   --split murder_mystery \
   --method cot \
+  --skills dummy_skill \
   --provider mock \
   --model mock \
   --limit 10
@@ -37,6 +46,7 @@ OPENAI_API_KEY=... python3 -m src.detective_reasoning.cli eval \
   --dataset detectbench \
   --split test-hard \
   --method evidence_card \
+  --skills external_evidence_bank,structured_memory_stub \
   --provider openai \
   --model gpt-4o-mini \
   --limit 20
@@ -69,18 +79,36 @@ http://127.0.0.1:8765
 - `evidence_card`
 - `critic_checklist`
 
-## Output
+## Supported Skills
 
-Batch evaluation writes:
+- `dummy_skill`: no-op registry test skill.
+- `external_evidence_bank`: attaches available structured evidence and reasoning annotations.
+- `structured_memory_stub`: asks the model to build a temporary timeline/location/entity memory.
 
-- JSONL with one record per sample
-- CSV summary with accuracy, parse errors, and token usage
+New skills should be registered in `src/detective_reasoning/registry.py`.
+
+## Saved Runs
+
+Both GUI single-question tests and CLI batch evaluations write:
+
+- `manifest.json`: run config, run id, timestamp, and summary.
+- `predictions.jsonl`: one record per sample, including prompt, visible model output, tool traces, prediction, gold answer, correctness, parse error, and token usage.
+- `summary.csv`: accuracy, parse errors, and token usage.
 
 Default output directory:
 
 ```text
-outputs/
+runs/<run_id>/
 ```
 
-This directory is git-ignored.
+This directory is git-ignored. Saved reasoning contains only model-visible
+outputs and tool traces; hidden model reasoning is not captured.
 
+## GUI
+
+The local browser GUI supports dataset/split selection, sample browsing, model
+selection, method selection, skill selection, and run saving. Start it with:
+
+```bash
+python3 -m src.detective_reasoning.demo_server
+```

@@ -18,6 +18,9 @@ class ModelConfig:
     temperature: float = 0.0
     max_tokens: int = 800
     base_url: str | None = None
+    thinking: str | None = None
+    reasoning_effort: str | None = None
+    api_key: str | None = None
 
 
 class ModelClient:
@@ -46,7 +49,7 @@ class OpenAICompatibleClient(ModelClient):
     def __init__(self, config: ModelConfig):
         self.config = config
         self.base_url = (config.base_url or os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1").rstrip("/")
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.api_key = config.api_key or os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise RuntimeError("OPENAI_API_KEY is required for provider=openai")
 
@@ -57,6 +60,10 @@ class OpenAICompatibleClient(ModelClient):
             "temperature": self.config.temperature,
             "max_tokens": self.config.max_tokens,
         }
+        if self.config.thinking:
+            payload["thinking"] = {"type": self.config.thinking}
+        if self.config.reasoning_effort:
+            payload["reasoning_effort"] = self.config.reasoning_effort
         req = urllib.request.Request(
             f"{self.base_url}/chat/completions",
             data=json.dumps(payload).encode("utf-8"),
@@ -72,11 +79,13 @@ class OpenAICompatibleClient(ModelClient):
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8", errors="replace")
             raise RuntimeError(f"OpenAI-compatible API error {e.code}: {body}") from e
-        text = raw["choices"][0]["message"]["content"]
+        message = raw["choices"][0]["message"]
+        text = message.get("content") or ""
         usage = raw.get("usage", {})
         return ModelResponse(
             text=text,
             model=self.config.model,
+            reasoning_content=message.get("reasoning_content"),
             prompt_tokens=usage.get("prompt_tokens"),
             completion_tokens=usage.get("completion_tokens"),
             total_tokens=usage.get("total_tokens"),
@@ -90,4 +99,3 @@ def make_model_client(config: ModelConfig) -> ModelClient:
     if config.provider == "openai":
         return OpenAICompatibleClient(config)
     raise ValueError(f"Unknown provider: {config.provider}")
-

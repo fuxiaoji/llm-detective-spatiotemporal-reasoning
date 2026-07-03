@@ -22,13 +22,16 @@ are meant to be reused for reports, demos, or research planning. For example:
 
 ## Reproduction toolkit
 
-The repository includes a minimal dependency-free toolkit for dataset inspection,
-batch baseline reproduction, and an interactive local demo.
+The repository includes a modular dependency-free toolkit for dataset inspection,
+batch baseline reproduction, skill-assisted prompting, saved run traces, and an
+interactive local GUI.
 
 List available datasets:
 
 ```bash
 python3 -m src.detective_reasoning.cli list-datasets
+python3 -m src.detective_reasoning.cli list-methods
+python3 -m src.detective_reasoning.cli list-skills
 ```
 
 Peek at normalized samples:
@@ -45,6 +48,7 @@ python3 -m src.detective_reasoning.cli eval \
   --dataset musr \
   --split murder_mystery \
   --method cot \
+  --skills dummy_skill \
   --provider mock \
   --model mock \
   --limit 10
@@ -57,6 +61,16 @@ python3 -m src.detective_reasoning.demo_server
 ```
 
 Then open `http://127.0.0.1:8765`.
+
+Runs are saved under `runs/<run_id>/` with:
+
+- `manifest.json`
+- `predictions.jsonl`
+- `summary.csv`
+
+Saved traces include prompts, visible model outputs, registered skill traces,
+predictions, gold answers, correctness, parse errors, and token usage. Hidden
+model reasoning is not captured.
 
 For a Chinese guide, see `notes/reproduction_framework_zh.md`.
 

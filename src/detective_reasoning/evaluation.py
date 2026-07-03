@@ -5,10 +5,11 @@ import csv
 import json
 import re
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import Any
 
 from .models import ModelClient
-from .prompts import build_prompt
+from .registry import build_registered_prompt
 from .schemas import Prediction, Sample
 
 
@@ -48,22 +49,48 @@ def is_correct(prediction: Any, gold: Any, sample: Sample) -> bool:
     return prediction == gold
 
 
-def run_method(sample: Sample, method: str, client: ModelClient, model_name: str) -> Prediction:
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def run_method(
+    sample: Sample,
+    method: str,
+    client: ModelClient,
+    model_name: str,
+    *,
+    provider: str = "unknown",
+    skills: list[str] | None = None,
+    run_id: str = "",
+) -> Prediction:
+    active_skills = skills or []
     intermediate: dict[str, Any] = {}
     if method == "critic_checklist":
-        draft_prompt = build_prompt("cot", sample)
+        draft_prompt = build_registered_prompt("cot", sample, skills=active_skills, intermediate=intermediate)
         draft_resp = client.generate(draft_prompt)
         intermediate["draft"] = draft_resp.text
-        prompt = build_prompt(method, sample, draft=draft_resp.text)
+        intermediate["draft_prompt"] = draft_prompt
+        prompt = build_registered_prompt(
+            method,
+            sample,
+            draft=draft_resp.text,
+            skills=active_skills,
+            intermediate=intermediate,
+        )
     else:
-        prompt = build_prompt(method, sample)
+        prompt = build_registered_prompt(method, sample, skills=active_skills, intermediate=intermediate)
     resp = client.generate(prompt)
+    if resp.reasoning_content:
+        intermediate["reasoning_content"] = resp.reasoning_content
     pred, parse_error = parse_prediction(resp.text, sample)
     return Prediction(
+        run_id=run_id,
         sample_id=sample.id,
         dataset=sample.dataset,
         split=sample.split,
         method=method,
+        skills=active_skills,
+        provider=provider,
         model=model_name,
         prompt=prompt,
         raw_output=resp.text,
@@ -77,6 +104,7 @@ def run_method(sample: Sample, method: str, client: ModelClient, model_name: str
             "completion_tokens": resp.completion_tokens,
             "total_tokens": resp.total_tokens,
         },
+        created_at=utc_now(),
     )
 
 
