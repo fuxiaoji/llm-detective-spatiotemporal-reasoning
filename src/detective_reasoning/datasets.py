@@ -24,6 +24,49 @@ def _read_jsonl(path: Path) -> Iterable[dict]:
                 yield json.loads(line)
 
 
+def _read_detectiveqa_novel_context(
+    lang: str,
+    novel_id: int | str | None,
+    answer_position: int | str | None,
+    max_chars: int = 24000,
+) -> tuple[str | None, dict]:
+    if novel_id is None:
+        return None, {"context_status": "missing_novel_id"}
+    root = DATA_ROOT / "DetectiveQA" / "hf_dataset" / f"novel_data_{lang}"
+    matches = sorted(root.glob(f"{novel_id}-*.txt"))
+    if not matches:
+        return None, {"context_status": "novel_text_not_found", "novel_text_dir": str(root)}
+    path = matches[0]
+    paragraphs: list[str] = []
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                paragraphs.append(line)
+    end_position = None
+    try:
+        end_position = int(answer_position) if answer_position is not None else None
+    except (TypeError, ValueError):
+        end_position = None
+    if end_position is not None and end_position > 0:
+        selected = paragraphs[: min(end_position, len(paragraphs))]
+    else:
+        selected = paragraphs
+    context = "\n".join(selected)
+    truncated = False
+    if len(context) > max_chars:
+        context = context[-max_chars:]
+        truncated = True
+    return context, {
+        "context_status": "loaded",
+        "novel_text_path": str(path),
+        "answer_position": answer_position,
+        "paragraphs_used": len(selected),
+        "context_chars": len(context),
+        "truncated_from_tail": truncated,
+    }
+
+
 def load_musr(domain: str = "murder_mystery", limit: int | None = None) -> list[Sample]:
     path = DATA_ROOT / "MuSR" / "datasets" / f"{domain}.json"
     rows = _read_json(path)
@@ -96,12 +139,17 @@ def load_detectiveqa_annotations(
         rows = _read_json(path)
         for novel in rows:
             for qi, q in enumerate(novel.get("questions", [])):
+                context, context_meta = _read_detectiveqa_novel_context(
+                    lang=lang,
+                    novel_id=novel.get("novel_id"),
+                    answer_position=q.get("answer_position"),
+                )
                 samples.append(
                     Sample(
                         id=f"detectiveqa_{lang}_{anno}_{novel.get('novel_id')}_{qi}",
                         dataset="detectiveqa",
                         split=f"{lang}_{anno}",
-                        context=None,
+                        context=context,
                         question=q.get("question", ""),
                         options=q.get("options"),
                         answer=q.get("answer"),
@@ -117,6 +165,7 @@ def load_detectiveqa_annotations(
                             "num_paragraphs": novel.get("num_paragraphs"),
                             "annotation": anno,
                             "language": lang,
+                            **context_meta,
                         },
                     )
                 )
@@ -182,4 +231,3 @@ def list_dataset_specs() -> list[dict[str, str]]:
         {"name": "turnabout", "split": "AA", "description": "TurnaboutLLM Ace Attorney"},
         {"name": "turnabout", "split": "DR", "description": "TurnaboutLLM Danganronpa"},
     ]
-
