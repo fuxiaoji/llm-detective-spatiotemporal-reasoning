@@ -16,6 +16,8 @@ This run expands the previous 10-sample smoke test to 50 samples per condition. 
 
 ## 2. Results
 
+![50-sample reproduction accuracy](figures/reproduction_50_accuracy_by_dataset_model.svg)
+
 | Dataset | Model | Condition | Skill | Correct | Accuracy | Parse errors | Run ID |
 |---|---|---|---|---:|---:|---:|---|
 | MuSR | DeepSeek V4 Flash | Baseline | - | 31/50 | 62.0% | 0 | `run_20260704T010630Z_2cdb93dd` |
@@ -48,7 +50,23 @@ This run expands the previous 10-sample smoke test to 50 samples per condition. 
 | TurnaboutLLM | DeepSeek V4 Flash | 0.0% | 2.0% | +2.0 pp |
 | TurnaboutLLM | MiniMax-M3 | 0.0% | 6.0% | +6.0 pp |
 
-## 4. Initial Observations
+## 4. What Each Skill Does
+
+The `paper_skill` condition does not train or modify the model. It changes the test-time prompt by adding a task-specific reasoning procedure. In other words, each skill is a plug-in prompting strategy applied to the same sample and same model.
+
+| Skill | Dataset | Method | Target ability | Current observation |
+|---|---|---|---|---|
+| `musr_cot_plus` | MuSR | Analyze each candidate by means, motive, opportunity, and story evidence; separate explicit facts from commonsense inferences; compare candidates before answering. | Multi-step soft reasoning, suspect comparison, evidence consistency | Strongest gain: DeepSeek +24 pp, MiniMax +8 pp. |
+| `detectbench_detective_prompt` | DetectBench | Extract hidden clues, connect them as a multi-hop evidence chain, and use the chain to support or rule out each option. | Implicit evidence discovery, multi-hop reasoning, option elimination | Small positive gains, suggesting evidence-chain prompting helps but needs finer ablation. |
+| `detectiveqa_stepwise_reasoning` | DetectiveQA | Build short ordered evidence steps from novel clues to inference, then map the final inference to an option. | Long-context evidence chains and step-wise explanation | DeepSeek improves slightly, while MiniMax drops; the extra structure may add noise in long-context settings. |
+| `turnabout_contradiction_matrix` | TurnaboutLLM | Compare evidence-testimony pairs by temporal conflict, spatial conflict, causal conflict, physical impossibility, and direct factual mismatch. | Evidence-testimony contradiction detection | Still very low; prompt-only skill is insufficient without candidate-pair enumeration and a dedicated evaluator. |
+
+Two additional general skills are available in the GUI but were not used as main 50-sample conditions:
+
+- `external_evidence_bank`: attaches available structured evidence/reasoning annotations to the prompt, simulating an external evidence store.
+- `structured_memory_stub`: asks the model to build a temporary timeline, location/entity memory, option evidence, and contradiction list before answering.
+
+## 5. Initial Observations
 
 MuSR remains a good first-stage benchmark because it is stable, affordable, and directly tests whether structured CoT improves multi-step mystery reasoning.
 
@@ -58,7 +76,7 @@ DetectiveQA is now a true novel-context test. However, fixed 24,000-character ta
 
 TurnaboutLLM should not be used as a main benchmark until it has a candidate-pair interface. The task asks for exact evidence-testimony pairs, so enumerating candidate pairs should reduce numbering and order errors.
 
-## 5. Next Steps
+## 6. Next Steps
 
 1. Run skill ablations on MuSR and DetectBench.
 2. Add retrieval-based external evidence for DetectiveQA.

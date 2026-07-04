@@ -16,6 +16,8 @@
 
 ## 2. 总结果
 
+![50 条复现准确率对比](figures/reproduction_50_accuracy_by_dataset_model.svg)
+
 | 数据集 | 模型 | 方法 | Skill | 正确数 | 准确率 | Parse errors | Run ID |
 |---|---|---|---|---:|---:|---:|---|
 | MuSR | DeepSeek V4 Flash | Baseline | - | 31/50 | 62.0% | 0 | `run_20260704T010630Z_2cdb93dd` |
@@ -48,7 +50,23 @@
 | TurnaboutLLM | DeepSeek V4 Flash | 0.0% | 2.0% | +2.0 pp |
 | TurnaboutLLM | MiniMax-M3 | 0.0% | 6.0% | +6.0 pp |
 
-## 4. 初步观察
+## 4. 本轮 Skill 具体方法
+
+本轮的 `paper_skill` 不是训练模型，也没有改模型结构，而是在 test-time 给 prompt 增加任务相关的推理流程约束。它更像“可插拔推理策略”：同一个样本、同一个模型，只改变提示中的解题步骤。
+
+| Skill | 用在哪个数据集 | 具体做法 | 想提升的能力 | 目前观察 |
+|---|---|---|---|---|
+| `musr_cot_plus` | MuSR | 让模型逐个候选人分析 means、motive、opportunity 和故事证据；区分原文事实和常识推断；最后比较候选人。 | 多步软推理、嫌疑人对比、证据一致性 | 提升最明显，DeepSeek +24 pp，MiniMax +8 pp。 |
+| `detectbench_detective_prompt` | DetectBench | 先抽取隐含线索，再连接成多跳证据链；逐个选项说明被哪条线索链支持或排除。 | 隐含证据发现、多跳推理、选项排除 | 小幅提升，说明证据链提示有用但还不够细。 |
+| `detectiveqa_stepwise_reasoning` | DetectiveQA | 要求模型生成短的有序 evidence steps，每一步把小说线索连接到一个推断，再映射到选项。 | 长文本证据链、逐步推理解释 | DeepSeek 小幅提升，MiniMax 下降，提示长文本任务里 skill 可能带来额外噪声。 |
+| `turnabout_contradiction_matrix` | TurnaboutLLM | 让模型按时间冲突、空间冲突、因果冲突、物理不可能、直接事实不一致来比较 evidence-testimony pair。 | 证据-证词矛盾检测 | 仍然很低，说明仅靠 prompt 不够，需要候选 pair 枚举和专用 evaluator。 |
+
+本轮还有两个通用 skill 没作为 50 条主实验条件使用，但 GUI 里可以 demo：
+
+- `external_evidence_bank`：把数据集中已有的结构化 evidence/reasoning 标注附加到 prompt，模拟外部证据库。
+- `structured_memory_stub`：要求模型临时建立 timeline、locations、entities、option evidence 和 contradictions，模拟结构化记忆。
+
+## 5. 初步观察
 
 MuSR 仍然是最适合第一阶段主实验的数据集之一，因为它稳定、成本适中，且能直接观察结构化 CoT 是否提升多步侦探推理。
 
@@ -58,7 +76,7 @@ DetectiveQA 本轮已经是带小说正文的长文本测试。由于固定 24,0
 
 TurnaboutLLM 如果仍然低分，优先不要把它当主 benchmark，而应把它改造成候选 pair 选择任务：先枚举 evidence-testimony pair，再让模型在候选项中选择，减少编号和顺序错误。
 
-## 5. 下一步
+## 6. 下一步
 
 1. 在 MuSR 和 DetectBench 上做 skill ablation。
 2. 给 DetectiveQA 加检索式外部证据库。
