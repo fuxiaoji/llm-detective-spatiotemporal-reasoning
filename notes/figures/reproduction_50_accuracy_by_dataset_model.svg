@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="512" viewBox="0 0 1180 512">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="260" y="36" font-size="24" font-family="Arial" font-weight="700">50-Sample Reproduction Accuracy</text>
+<line x1="260" y1="55" x2="1020" y2="55" stroke="#333"/>
+<line x1="260.0" y1="49" x2="260.0" y2="462" stroke="#eeeeee"/>
+<text x="250.0" y="42" font-size="12" font-family="Arial" fill="#666">0%</text>
+<line x1="336.0" y1="49" x2="336.0" y2="462" stroke="#eeeeee"/>
+<text x="326.0" y="42" font-size="12" font-family="Arial" fill="#666">10%</text>
+<line x1="412.0" y1="49" x2="412.0" y2="462" stroke="#eeeeee"/>
+<text x="402.0" y="42" font-size="12" font-family="Arial" fill="#666">20%</text>
+<line x1="488.0" y1="49" x2="488.0" y2="462" stroke="#eeeeee"/>
+<text x="478.0" y="42" font-size="12" font-family="Arial" fill="#666">30%</text>
+<line x1="564.0" y1="49" x2="564.0" y2="462" stroke="#eeeeee"/>
+<text x="554.0" y="42" font-size="12" font-family="Arial" fill="#666">40%</text>
+<line x1="640.0" y1="49" x2="640.0" y2="462" stroke="#eeeeee"/>
+<text x="630.0" y="42" font-size="12" font-family="Arial" fill="#666">50%</text>
+<line x1="716.0" y1="49" x2="716.0" y2="462" stroke="#eeeeee"/>
+<text x="706.0" y="42" font-size="12" font-family="Arial" fill="#666">60%</text>
+<line x1="792.0" y1="49" x2="792.0" y2="462" stroke="#eeeeee"/>
+<text x="782.0" y="42" font-size="12" font-family="Arial" fill="#666">70%</text>
+<line x1="868.0" y1="49" x2="868.0" y2="462" stroke="#eeeeee"/>
+<text x="858.0" y="42" font-size="12" font-family="Arial" fill="#666">80%</text>
+<line x1="944.0" y1="49" x2="944.0" y2="462" stroke="#eeeeee"/>
+<text x="934.0" y="42" font-size="12" font-family="Arial" fill="#666">90%</text>
+<line x1="1020.0" y1="49" x2="1020.0" y2="462" stroke="#eeeeee"/>
+<text x="1010.0" y="42" font-size="12" font-family="Arial" fill="#666">100%</text>
+<text x="20" y="98" font-size="14" font-family="Arial" fill="#222">DetectBench / DeepSeek V4 Flash</text>
+<rect x="260" y="80" width="638.4" height="16" fill="#8fb3ff"/>
+<rect x="260" y="100" width="653.6" height="16" fill="#ff9f6e"/>
+<text x="904.4" y="93" font-size="12" font-family="Arial">84.0%</text>
+<text x="919.6" y="113" font-size="12" font-family="Arial">86.0%</text>
+<text x="20" y="142" font-size="14" font-family="Arial" fill="#222">DetectBench / MiniMax-M3</text>
+<rect x="260" y="124" width="592.8000000000001" height="16" fill="#8fb3ff"/>
+<rect x="260" y="144" width="623.1999999999999" height="16" fill="#ff9f6e"/>
+<text x="858.8000000000001" y="137" font-size="12" font-family="Arial">78.0%</text>
+<text x="889.1999999999999" y="157" font-size="12" font-family="Arial">82.0%</text>
+<text x="20" y="186" font-size="14" font-family="Arial" fill="#222">DetectiveQA / DeepSeek V4 Flash</text>
+<rect x="260" y="168" width="729.6" height="16" fill="#8fb3ff"/>
+<rect x="260" y="188" width="744.8" height="16" fill="#ff9f6e"/>
+<text x="995.6" y="181" font-size="12" font-family="Arial">96.0%</text>
+<text x="1010.8" y="201" font-size="12" font-family="Arial">98.0%</text>
+<text x="20" y="230" font-size="14" font-family="Arial" fill="#222">DetectiveQA / MiniMax-M3</text>
+<rect x="260" y="212" width="714.4" height="16" fill="#8fb3ff"/>
+<rect x="260" y="232" width="684.0" height="16" fill="#ff9f6e"/>
+<text x="980.4" y="225" font-size="12" font-family="Arial">94.0%</text>
+<text x="950.0" y="245" font-size="12" font-family="Arial">90.0%</text>
+<text x="20" y="274" font-size="14" font-family="Arial" fill="#222">MuSR / DeepSeek V4 Flash</text>
+<rect x="260" y="256" width="471.20000000000005" height="16" fill="#8fb3ff"/>
+<rect x="260" y="276" width="653.6" height="16" fill="#ff9f6e"/>
+<text x="737.2" y="269" font-size="12" font-family="Arial">62.0%</text>
+<text x="919.6" y="289" font-size="12" font-family="Arial">86.0%</text>
+<text x="20" y="318" font-size="14" font-family="Arial" fill="#222">MuSR / MiniMax-M3</text>
+<rect x="260" y="300" width="501.6" height="16" fill="#8fb3ff"/>
+<rect x="260" y="320" width="562.4" height="16" fill="#ff9f6e"/>
+<text x="767.6" y="313" font-size="12" font-family="Arial">66.0%</text>
+<text x="828.4" y="333" font-size="12" font-family="Arial">74.0%</text>
+<text x="20" y="362" font-size="14" font-family="Arial" fill="#222">TurnaboutLLM / DeepSeek V4 Flash</text>
+<rect x="260" y="344" width="1" height="16" fill="#8fb3ff"/>
+<rect x="260" y="364" width="15.199999999999989" height="16" fill="#ff9f6e"/>
+<text x="266.0" y="357" font-size="12" font-family="Arial">0.0%</text>
+<text x="281.2" y="377" font-size="12" font-family="Arial">2.0%</text>
+<text x="20" y="406" font-size="14" font-family="Arial" fill="#222">TurnaboutLLM / MiniMax-M3</text>
+<rect x="260" y="388" width="1" height="16" fill="#8fb3ff"/>
+<rect x="260" y="408" width="45.60000000000002" height="16" fill="#ff9f6e"/>
+<text x="266.0" y="401" font-size="12" font-family="Arial">0.0%</text>
+<text x="311.6" y="421" font-size="12" font-family="Arial">6.0%</text>
+<rect x="260" y="475" width="16" height="12" fill="#8fb3ff"/>
+<text x="282" y="487" font-size="13" font-family="Arial">Baseline</text>
+<rect x="370" y="475" width="16" height="12" fill="#ff9f6e"/>
+<text x="392" y="487" font-size="13" font-family="Arial">Paper-inspired skill</text>
+</svg>

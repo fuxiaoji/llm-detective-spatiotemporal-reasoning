@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import random
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -73,12 +74,24 @@ class OpenAICompatibleClient(ModelClient):
             },
             method="POST",
         )
-        try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                raw: dict[str, Any] = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            body = e.read().decode("utf-8", errors="replace")
-            raise RuntimeError(f"OpenAI-compatible API error {e.code}: {body}") from e
+        raw: dict[str, Any] | None = None
+        last_error: Exception | None = None
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=180) as resp:
+                    raw = json.loads(resp.read().decode("utf-8"))
+                    break
+            except urllib.error.HTTPError as e:
+                body = e.read().decode("utf-8", errors="replace")
+                last_error = RuntimeError(f"OpenAI-compatible API error {e.code}: {body}")
+                if e.code not in {408, 409, 425, 429, 500, 502, 503, 504}:
+                    raise last_error from e
+            except (urllib.error.URLError, TimeoutError, OSError) as e:
+                last_error = e
+            if attempt < 2:
+                time.sleep(2**attempt)
+        if raw is None:
+            raise RuntimeError(f"OpenAI-compatible API request failed after retries: {last_error}") from last_error
         message = raw["choices"][0]["message"]
         text = message.get("content") or ""
         usage = raw.get("usage", {})

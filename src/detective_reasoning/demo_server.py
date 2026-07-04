@@ -76,6 +76,16 @@ MODEL_PRESETS = [
         "max_tokens": "1200",
     },
     {
+        "id": "minimax-m3",
+        "label": "MiniMax-M3",
+        "provider": "openai",
+        "model": "MiniMax-M3",
+        "base_url": "https://api.minimaxi.com/v1",
+        "thinking": "disabled",
+        "reasoning_effort": "",
+        "max_tokens": "1600",
+    },
+    {
         "id": "qwen-plus",
         "label": "Qwen Plus",
         "provider": "openai",
@@ -165,6 +175,35 @@ def _page(body: str) -> bytes:
 {body}
 </body>
 </html>""".encode("utf-8")
+
+
+def _context_preview_html(sample, max_chars: int = 5000) -> str:
+    context = sample.context or ""
+    metadata = sample.metadata or {}
+    if sample.dataset == "detectiveqa":
+        context_meta = {
+            "language": metadata.get("language"),
+            "annotation": metadata.get("annotation"),
+            "novel_id": metadata.get("novel_id"),
+            "context_status": metadata.get("context_status"),
+            "novel_text_path": metadata.get("novel_text_path"),
+            "answer_position": metadata.get("answer_position"),
+            "paragraphs_used": metadata.get("paragraphs_used"),
+            "context_chars": metadata.get("context_chars"),
+            "truncated_from_tail": metadata.get("truncated_from_tail"),
+        }
+        notice = (
+            "<p class=\"muted\">DetectiveQA novel preview: this panel shows a local, "
+            "truncated research excerpt used as model context, not the full novel text.</p>"
+        )
+        return (
+            "<h3>Novel Context Preview / 小说上下文预览</h3>"
+            + notice
+            + f"<h4>Context metadata</h4><pre>{html.escape(json.dumps(context_meta, ensure_ascii=False, indent=2))}</pre>"
+            + f"<h4>Text excerpt (first {min(max_chars, len(context))} chars of loaded context)</h4>"
+            + f"<pre>{html.escape(context[:max_chars])}</pre>"
+        )
+    return f"<h3>Context</h3><pre>{html.escape(context[:max_chars])}</pre>"
 
 
 class DemoHandler(BaseHTTPRequestHandler):
@@ -336,7 +375,7 @@ class DemoHandler(BaseHTTPRequestHandler):
             <p><b>ID:</b> {html.escape(sample.id)}</p>
             <p><b>Question:</b> {html.escape(sample.question)}</p>
             <h3>Options</h3><pre>{html.escape(json.dumps(sample.options, ensure_ascii=False, indent=2))}</pre>
-            <h3>Context</h3><pre>{html.escape((sample.context or '')[:5000])}</pre>
+            {_context_preview_html(sample)}
           </div>
           <div class="card">
             <h2>Gold / Evidence</h2>

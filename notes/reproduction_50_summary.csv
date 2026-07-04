@@ -1,0 +1,17 @@
+dataset,split,model_label,model,condition,skill,total,correct,accuracy,parse_errors,total_tokens,avg_tokens,elapsed_sec,run_id,returncode
+musr,murder_mystery,deepseek_v4_flash,deepseek-v4-flash,baseline_direct,,50,31,0.62,0,65212,1304.24,109.8,run_20260704T010630Z_2cdb93dd,0
+musr,murder_mystery,deepseek_v4_flash,deepseek-v4-flash,paper_skill,musr_cot_plus,50,43,0.86,0,78079,1561.58,217.7,run_20260704T010820Z_2434f237,0
+musr,murder_mystery,minimax_m3,MiniMax-M3,baseline_direct,,50,33,0.66,0,73085,1461.7,182.0,run_20260704T011158Z_f0be3167,0
+musr,murder_mystery,minimax_m3,MiniMax-M3,paper_skill,musr_cot_plus,50,37,0.74,0,86972,1739.44,313.3,run_20260704T011500Z_11b8e7ce,0
+detectbench,test-hard,deepseek_v4_flash,deepseek-v4-flash,baseline_direct,,50,42,0.84,0,35310,706.2,118.3,run_20260704T012013Z_643d9009,0
+detectbench,test-hard,deepseek_v4_flash,deepseek-v4-flash,paper_skill,detectbench_detective_prompt,50,43,0.86,0,44672,893.44,159.5,run_20260704T012211Z_6c74e394,0
+detectbench,test-hard,minimax_m3,MiniMax-M3,baseline_direct,,50,39,0.78,1,44506,890.12,234.7,run_20260704T012451Z_154c042a,0
+detectbench,test-hard,minimax_m3,MiniMax-M3,paper_skill,detectbench_detective_prompt,50,41,0.82,0,62005,1240.1,504.9,run_20260704T013321Z_f93d2d52,0
+detectiveqa,en_human,deepseek_v4_flash,deepseek-v4-flash,baseline_direct,,50,48,0.96,0,324478,6489.56,76.1,run_20260704T014146Z_1de6ab7e,0
+detectiveqa,en_human,deepseek_v4_flash,deepseek-v4-flash,paper_skill,detectiveqa_stepwise_reasoning,50,49,0.98,0,329933,6598.66,107.5,run_20260704T014302Z_02f7b416,0
+detectiveqa,en_human,minimax_m3,MiniMax-M3,baseline_direct,,50,47,0.94,0,322542,6450.84,143.9,run_20260704T014449Z_f98a2beb,0
+detectiveqa,en_human,minimax_m3,MiniMax-M3,paper_skill,detectiveqa_stepwise_reasoning,50,45,0.9,0,332056,6641.12,227.9,run_20260704T014713Z_fa71fcbb,0
+turnabout,AA,deepseek_v4_flash,deepseek-v4-flash,baseline_direct,,50,0,0.0,1,64671,1293.42,104.5,run_20260704T015101Z_d219f2fc,0
+turnabout,AA,deepseek_v4_flash,deepseek-v4-flash,paper_skill,turnabout_contradiction_matrix,50,1,0.02,0,69609,1392.18,109.5,run_20260704T015246Z_20d566a9,0
+turnabout,AA,minimax_m3,MiniMax-M3,baseline_direct,,50,0,0.0,2,78932,1578.64,281.0,run_20260704T015435Z_2285c12a,0
+turnabout,AA,minimax_m3,MiniMax-M3,paper_skill,turnabout_contradiction_matrix,50,3,0.06,1,84624,1692.48,293.0,run_20260704T015916Z_b93d6bb6,0
